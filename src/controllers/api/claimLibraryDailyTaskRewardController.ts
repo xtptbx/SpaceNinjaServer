@@ -1,0 +1,31 @@
+import { addFusionPoints, getInventory } from "../../services/inventoryService.ts";
+import { getAccountIdForRequest } from "../../services/loginService.ts";
+import type { RequestHandler } from "express";
+
+export const claimLibraryDailyTaskRewardController: RequestHandler = async (req, res) => {
+    const accountId = await getAccountIdForRequest(req);
+    const inventory = await getInventory(accountId);
+
+    const rewardQuantity = inventory.LibraryActiveDailyTaskInfo!.RewardQuantity;
+    const rewardStanding = inventory.LibraryActiveDailyTaskInfo!.RewardStanding;
+    inventory.LibraryActiveDailyTaskInfo = undefined;
+    inventory.LibraryAvailableDailyTaskInfo = undefined;
+
+    let syndicate = inventory.Affiliations.find(x => x.Tag == "LibrarySyndicate");
+    if (!syndicate) {
+        syndicate = inventory.Affiliations[inventory.Affiliations.push({ Tag: "LibrarySyndicate", Standing: 0 }) - 1];
+    }
+    syndicate.Standing += rewardStanding;
+
+    addFusionPoints(inventory, 80 * rewardQuantity);
+    await inventory.save();
+
+    res.json({
+        RewardItem: "/Lotus/StoreItems/Upgrades/Mods/FusionBundles/RareFusionBundle",
+        RewardQuantity: rewardQuantity,
+        StandingAwarded: rewardStanding,
+        InventoryChanges: {
+            FusionPoints: 80 * rewardQuantity
+        }
+    });
+};

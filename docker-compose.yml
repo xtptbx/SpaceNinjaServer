@@ -1,0 +1,27 @@
+services:
+    spaceninjaserver:
+        # The image to use. If you have an ARM CPU, replace 'latest' with 'latest-arm64'.
+        image: openwf/spaceninjaserver:latest
+
+        volumes:
+            - ./docker-data/conf:/app/conf
+            - ./docker-data/static-data:/app/static/data
+            - ./docker-data/logs:/app/logs
+        ports:
+            - 80:80
+            - 443:443
+
+        # Normally, the image is fetched from Docker Hub, but you can use the local Dockerfile by removing "image" above and adding this:
+        #build: .
+        # Works best when using `docker-compose up --force-recreate --build`.
+
+        depends_on:
+            - mongodb
+    mongodb:
+        image: docker.io/library/mongo:8.0.0-noble
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: openwfagent
+            MONGO_INITDB_ROOT_PASSWORD: spaceninjaserver
+        volumes:
+            - ./docker-data/database:/data/db
+        command: mongod --quiet --logpath /dev/null

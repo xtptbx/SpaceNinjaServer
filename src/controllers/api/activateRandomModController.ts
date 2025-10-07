@@ -1,0 +1,46 @@
+import { toOid } from "../../helpers/inventoryHelpers.ts";
+import {
+    createVeiledRivenFingerprint,
+    createUnveiledRivenFingerprint,
+    rivenRawToRealWeighted
+} from "../../helpers/rivenHelper.ts";
+import { getJSONfromString } from "../../helpers/stringHelpers.ts";
+import { addMods, getInventory } from "../../services/inventoryService.ts";
+import { getAccountIdForRequest } from "../../services/loginService.ts";
+import { getRandomElement } from "../../services/rngService.ts";
+import type { RequestHandler } from "express";
+import { ExportUpgrades } from "warframe-public-export-plus";
+
+export const activateRandomModController: RequestHandler = async (req, res) => {
+    const accountId = await getAccountIdForRequest(req);
+    const inventory = await getInventory(accountId, "RawUpgrades Upgrades instantFinishRivenChallenge");
+    const request = getJSONfromString<IActiveRandomModRequest>(String(req.body));
+    addMods(inventory, [
+        {
+            ItemType: request.ItemType,
+            ItemCount: -1
+        }
+    ]);
+    const rivenType = getRandomElement(rivenRawToRealWeighted[request.ItemType])!;
+    const fingerprint = inventory.instantFinishRivenChallenge
+        ? createUnveiledRivenFingerprint(ExportUpgrades[rivenType])
+        : createVeiledRivenFingerprint(ExportUpgrades[rivenType]);
+    const upgradeIndex =
+        inventory.Upgrades.push({
+            ItemType: rivenType,
+            UpgradeFingerprint: JSON.stringify(fingerprint)
+        }) - 1;
+    await inventory.save();
+    // For some reason, in this response, the UpgradeFingerprint is simply a nested object and not a string
+    res.json({
+        NewMod: {
+            UpgradeFingerprint: fingerprint,
+            ItemType: rivenType,
+            ItemId: toOid(inventory.Upgrades[upgradeIndex]._id)
+        }
+    });
+};
+
+interface IActiveRandomModRequest {
+    ItemType: string;
+}

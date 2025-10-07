@@ -1,0 +1,65 @@
+{
+  "name": "wf-emulator",
+  "version": "0.1.0",
+  "description": "WF Emulator",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node --enable-source-maps build/src/index.js",
+    "build": "tsgo --inlineSourceMap && ncp static/webui build/static/webui",
+    "build:tsc": "tsc --incremental --inlineSourceMap && ncp static/webui build/static/webui",
+    "build:dev": "tsgo --inlineSourceMap",
+    "build:dev:tsc": "tsc --incremental --inlineSourceMap",
+    "build-and-start": "npm run build && npm run start",
+    "build-and-start:bun": "npm run verify && npm run bun-run",
+    "dev": "node scripts/dev.cjs",
+    "dev:bun": "bun scripts/dev.cjs",
+    "verify": "tsgo --noEmit",
+    "verify:tsc": "tsc --noEmit",
+    "raw": "node scripts/raw-precheck.js && node --experimental-transform-types src/index.ts",
+    "raw:bun": "bun src/index.ts",
+    "lint": "eslint --ext .ts .",
+    "lint:ci": "eslint --ext .ts --rule \"prettier/prettier: off\" .",
+    "lint:fix": "eslint --fix --ext .ts .",
+    "prettier": "prettier --write .",
+    "update-translations": "cd scripts && node update-translations.cjs",
+    "fix": "npm run update-translations && npm run lint:fix"
+  },
+  "license": "GNU",
+  "type": "module",
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "crc-32": "^1.2.2",
+    "express": "^5",
+    "json-with-bigint": "^3.4.4",
+    "mongoose": "^8.11.0",
+    "morgan": "^1.10.0",
+    "ncp": "^2.0.0",
+    "undici": "^7.10.0",
+    "warframe-public-export-plus": "^0.5.89",
+    "warframe-riven-info": "^0.1.2",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "ws": "^8.18.2"
+  },
+  "optionalDependencies": {
+    "@types/express": "^5",
+    "@types/morgan": "^1.9.9",
+    "@types/websocket": "^1.0.10",
+    "@types/ws": "^8.18.1",
+    "@typescript/native-preview": "^7.0.0-dev.20250625.1",
+    "typescript": "^5.7"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.2.5",
+    "prettier": "^3.5.3",
+    "tree-kill": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=20.18.1"
+  }
+}
