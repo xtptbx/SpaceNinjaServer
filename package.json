@@ -31,7 +31,7 @@
     "crc-32": "^1.2.2",
     "express": "^5",
     "json-with-bigint": "^3.4.4",
-    "mongoose": "^8.11.0",
+    "mongoose": "^8.19.2",
     "morgan": "^1.10.0",
     "ncp": "^2.0.0",
     "undici": "^7.10.0",
